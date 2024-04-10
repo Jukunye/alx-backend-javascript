@@ -6,10 +6,17 @@ export default function handleProfileSignup(firstName, lastName, fileName) {
   const user = signUpUser(firstName, lastName);
 
   return Promise.allSettled([photo, user]).then((values) => {
-    const profileResults = values.map((value) => ({
-      status: value.status,
-      value: value.status === 'fulfilled' ? value.value : value.reason,
-    }));
+    const profileResults = [];
+    values.forEach((element) => {
+      if (element.status === 'fulfilled') {
+        profileResults.push({ status: element.status, value: element.value });
+      } else {
+        profileResults.push({
+          status: element.status,
+          value: `${element.reason}`,
+        });
+      }
+    });
 
     return profileResults;
   });
