@@ -28,7 +28,7 @@ function countStudents(databaseFilePath) {
     console.log(
       `Number of students: ${
         databaseRows.filter((row) => row.length > 3).length
-      }`
+      }`,
     );
     Object.keys(studentCountByField).forEach((field) => {
       console.log(
@@ -37,7 +37,7 @@ function countStudents(databaseFilePath) {
         }. List: ${studentData
           .filter((student) => student[1] === field)
           .map((student) => student[0])
-          .join(', ')}`
+          .join(', ')}`,
       );
     });
   } catch (error) {
