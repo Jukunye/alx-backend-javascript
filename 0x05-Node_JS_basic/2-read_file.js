@@ -1,39 +1,48 @@
-const fs = require("fs");
+const fs = require('fs');
 
-function handleLogic(err, data) {
-  if (err) {
-    throw new Error("Cannot load the database");
+function countStudents(databaseFilePath) {
+  try {
+    const databaseContent = fs.readFileSync(databaseFilePath, 'utf8');
+    const databaseRows = databaseContent
+      .split('\n')
+      .map((row) => row.split(','));
+
+    databaseRows.shift(); // Remove header row
+
+    const studentData = databaseRows.map((row) => [row[0], row[3]]);
+
+    const fieldsOfStudy = new Set();
+    studentData.forEach((student) => {
+      fieldsOfStudy.add(student[1]);
+    });
+
+    const studentCountByField = {};
+    fieldsOfStudy.forEach((field) => {
+      studentCountByField[field] = 0;
+    });
+
+    studentData.forEach((student) => {
+      studentCountByField[student[1]] += 1;
+    });
+
+    console.log(
+      `Number of students: ${
+        databaseRows.filter((row) => row.length > 3).length
+      }`
+    );
+    Object.keys(studentCountByField).forEach((field) => {
+      console.log(
+        `Number of students in ${field}: ${
+          studentCountByField[field]
+        }. List: ${studentData
+          .filter((student) => student[1] === field)
+          .map((student) => student[0])
+          .join(', ')}`
+      );
+    });
+  } catch (error) {
+    throw Error('Cannot load the database');
   }
-
-  const linesWithFirst = data.toString().split("\n");
-  const lines = linesWithFirst.slice(1);
-
-  let dictionary = new Object();
-  let count = 0;
-
-  for (const line of lines) {
-    fields = line.split(",");
-    if (fields[3] in dictionary) {
-      dictionary[fields[3]].push(fields[0]);
-    } else {
-      dictionary[fields[3]] = new Array();
-      dictionary[fields[3]].push(fields[0]);
-    }
-    count++;
-  }
-  console.log(`Number of students: ${count}`);
-  for (const key in dictionary) {
-    const Number = dictionary[key].length;
-    const Field = key;
-    const List = dictionary[key].join(", ");
-    console.log(`Number of students in ${Field}: ${Number}. List: ${List}`);
-  }
-}
-
-function countStudents(filePath) {
-  fs.readFile(filePath, (err, data) => {
-    handleLogic(err, data);
-  });
 }
 
 module.exports = countStudents;
